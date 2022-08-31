@@ -4,7 +4,7 @@ from flask_restful import Resource
 from ..models import db, Song, SongSchema, User, UserSchema, Album, AlbumSchema, Medio
 from flask import request
 from sqlalchemy.exc import IntegrityError
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+from flask_jwt_extended import jwt_required, create_access_token
 from datetime import datetime
 from celery import Celery
 
