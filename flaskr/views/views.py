@@ -1,11 +1,19 @@
 from os import access
+import queue
 from flask_restful import Resource
 from ..models import db, Song, SongSchema, User, UserSchema, Album, AlbumSchema, Medio
 from flask import request
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 from datetime import datetime
-from ..tasks import register_log
+from celery import Celery
+
+celery_app = Celery(__name__, broker='redis://localhost:6379/0')
+
+@celery_app.task(name="register_log")
+def register_log(*args, **kwargs):
+    pass
+
 
 song_schema = SongSchema()
 user_schema = UserSchema()
@@ -55,7 +63,8 @@ class LogInView(Resource):
         u_password = request.json["password"]
         user = User.query.filter_by(name=u_name, password = u_password).all()
         if user:
-            register_log.delay(u_name, datetime.utcnow())
+            args = (u_name, datetime.now())
+            register_log.apply_async(args=args, queue='log_signin')
             return {'message':'LogIn successful'}, 200
         else:
             return {'message':'Wrong credentials'}, 401
