@@ -1,8 +1,10 @@
 from flaskr import create_app
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
+
+from flaskr.views.views import LogOutView
 from .models import db
-from .views import SongsView, SongView, LogInView, SignInView,  AlbumView, AlbumsUserView, SongsAlbumVIew
+from .views import SongsView, SongView, LogInView,  LogOutView  ,SignInView,  AlbumView, AlbumsUserView, SongsAlbumVIew
 
 app = create_app('default')
 app_context = app.app_context()
@@ -18,6 +20,7 @@ api.add_resource(SongsView, '/songs')
 api.add_resource(SongView, '/song/<int:id>')
 api.add_resource(SignInView, '/signin')
 api.add_resource(LogInView, '/login')
+api.add_resource(LogOutView, '/logout')
 api.add_resource(AlbumsUserView, '/user/<int:id_user>/albums')
 api.add_resource(AlbumView, '/album/<int:id_album>')
 api.add_resource(SongsAlbumVIew, '/album/<int:id_album>/songs')

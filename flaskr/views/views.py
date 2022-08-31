@@ -4,6 +4,8 @@ from ..models import db, Song, SongSchema, User, UserSchema, Album, AlbumSchema,
 from flask import request
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+from datetime import datetime
+from ..tasks import register_log
 
 song_schema = SongSchema()
 user_schema = UserSchema()
@@ -49,15 +51,21 @@ class SongView(Resource):
     
 class LogInView(Resource):
     def post(self):
-            u_name = request.json["name"]
-            u_password = request.json["password"]
-            user = User.query.filter_by(name=u_name, password = u_password).all()
-            if user:
-                return {'message':'LogIn successful'}, 200
-            else:
-                return {'message':'Wrong credentials'}, 401
-
-
+        u_name = request.json["name"]
+        u_password = request.json["password"]
+        user = User.query.filter_by(name=u_name, password = u_password).all()
+        if user:
+            register_log.delay(u_name, datetime.utcnow())
+            return {'message':'LogIn successful'}, 200
+        else:
+            return {'message':'Wrong credentials'}, 401
+            
+class LogOutView(Resource):
+    
+    def post(self):
+        return {'message':'LogOut successful'}, 200
+    
+    
 class SignInView(Resource):
     
     def post(self):
